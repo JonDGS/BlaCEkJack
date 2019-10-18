@@ -10,3 +10,57 @@
   (cond((null? list1) -1)
        ((equal? start index) (car list1))
        (else(getElementByIndex (+ start 1) index (cdr list1)))))
+
+;;Function that eliminates an element from the list
+;;element: Element to be removed
+;;list1: List where it is going to be remove
+;;return: list without said element
+(define (eliminateFromList element list1)
+  (cond((null? list1) list1)
+       ((equal? element (car list1)) (eliminateFromList element (cdr list1)))
+       (else (cons (car list1) (eliminateFromList element (cdr list1))))))
+(eliminateFromList 2 (list 1 4 3))
+
+;;Eliminates a element from the list based on its index
+;;list1: list to be analyze
+;;index: index chosen to eliminate
+;;curren: index of the current process
+;;return: list without the chosen element
+(define (eliminateFromListByIndex list1 index currentIndex)
+  (cond((null? list1) list1)
+       ((= index currentIndex) (eliminateFromListByIndex (cdr list1) index (+ currentIndex 1)))
+       (else(cons (car list1) (eliminateFromListByIndex (cdr list1) index (+ currentIndex 1))))))
+
+;;Function that get the length of a list
+;;list1: List to be analyze
+;;return: List length
+(define (listLength list1)
+  (cond((null? list1) 0)
+       (else(+ 1 (listLength (cdr list1))))))
+
+;;Function that says whether a player has a natural BlackJack or not
+;;list1: List of carts the player has
+;; total: total amount of the value of the cards
+;;return: Whether the players has a natural blackjack
+(define (isNaturalBlackJack list1 total)
+  (cond ((null? list1)
+         (cond((= 21 total) #t)
+              (else #f)))
+        (else(isNaturalBlackJack (cdr list1) (+ total (caar list1))))))
+(isNaturalBlackJack (list '(10) '(11)) 0)
+
+;;Auxilaire function for shuffling the deck
+;;list1: deck
+;;theChosenOne: random index chosen on previous function
+;;return: shuffled deck
+(define (shuffleDeckAux list1 theChosenOne)
+  (cons (getElementByIndex 0 theChosenOne list1) (shuffleDeck (eliminateFromListByIndex list1 theChosenOne 0))))
+
+;;Function that suffles a given deck
+;;deck: deck to be suffle
+;;return: suffled deck
+(define (shuffleDeck deck)
+  (cond((null? deck) deck)
+       (else(shuffleDeckAux deck (random (listLength deck))))))
+
+(shuffleDeck (list 1 2 3 4 5 6 7 8 9))
