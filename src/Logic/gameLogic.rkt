@@ -63,4 +63,32 @@
   (cond((null? deck) deck)
        (else(shuffleDeckAux deck (random (listLength deck))))))
 
-(shuffleDeck (list 1 2 3 4 5 6 7 8 9))
+(shuffleDeck (list 1 2 3 4 5 6 7 8 9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26))
+
+;;Function sums all the card values without counting As
+;;list1: cards to be analyze
+;;sum: current sum of the cards
+;;return: the sum without As
+(define (sumWithoutA list1 sum)
+  (cond((null? list1) sum)
+       ((equal? (cadar list1)  'A) (sumWithoutA (cdr list1) sum))
+       (else(sumWithoutA (cdr list1) (+ (caar list1) sum)))))
+
+(sumWithoutA (list (list 10 'A) (list 5 'B) (list 11 'A)) 0)
+
+;;Auxiliare function for getting random card out of the deck
+;;theChosenOne: random index
+;;deck: deck to be processed
+;;return: a list with the random selected card on front
+(define (getRandomCardFromDeckAux theChosenOne deck)
+  (cons (getElementByIndex 0 theChosenOne deck) (eliminateFromListByIndex deck theChosenOne 0)))
+
+;;Function for getting a random card out of the deck
+;;deck: deck to be processed
+;;return: a list with the random selected card on front 
+(define (getRandomCardFromDeck deck)
+  (getRandomCardFromDeckAux (random (listLength deck)) deck))
+
+(getRandomCardFromDeck (list 1 2 3 4 5 6 7 8 9))
+
+
