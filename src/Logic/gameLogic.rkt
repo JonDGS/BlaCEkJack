@@ -8,6 +8,7 @@
 ;;return: element in that index, if the element is not there then it returns -1
 (define (getElementByIndex start index list1)
   (cond((null? list1) -1)
+       ((> 0 index) (getElementByIndex start (+ (listLength list1) index) list1))
        ((equal? start index) (car list1))
        (else(getElementByIndex (+ start 1) index (cdr list1)))))
 
@@ -91,4 +92,99 @@
 
 (getRandomCardFromDeck (list 1 2 3 4 5 6 7 8 9))
 
+;;Function that makes a player selected the "stand" option
+;;player: player to be analyze
+;;return: whether the player stood or not
+(define (isPlayerDone player)
+  (cond((equal? 1 (getElementByIndex 0 2 player)) #t)
+       (else #f)))
 
+(isPlayerDone (list 'valvaro' (list 1 2 3 4 5) 0))
+
+;;Function that makes sure everyone is ready
+;;players: players of the current game
+;;return: whether or not everyone has selected the stood option
+(define (isEverybodyDone players)
+  (cond((null? players) #t)
+       ((isPlayerDone (car players)) (isEverybodyDone (cdr players)))
+       (else #f)))
+(isEverybodyDone (list (list 'valvaro' (list 1 2 3 4 5) 1) (list 'jon' (list 6 7 8 9 10 11) 1) (list 'crupier' (list 12 13 14 15 16 17) 0)))
+
+;;Fucntion that changes an element in a list with another element
+;;start: start of the list
+;;index: index to be changed
+;;element: element to be introduced
+;;list1: list to be changed
+;;return: the list changed
+(define (changeElementByIndex start index element list1)
+  (cond((null? list1) list1)
+       ((> 0 index) (changeElementByIndex start (+ (listLength list1) index) element list1))
+       ((= start index) (cons element (changeElementByIndex (+ start 1) index element (cdr list1))))
+       (else(cons (car list1) (changeElementByIndex (+ start 1) index element (cdr list1))))))
+
+(changeElementByIndex 0 4 8 (list 1 2 3 4 5 6 7 8 9 10))
+
+;;Adds element to the very end of the list
+;;list1: list to be processed
+;;element: element to be added
+;;return: the list changed
+(define (addElementToLast list1 element)
+  (cond((null? list1) (list element))
+       (else(cons (car list1) (addElementToLast (cdr list1) element)))))
+
+;;Updates a player's deck with a new card from the deck
+;;theChosenOne: randomly generated index
+;;player: player with is going to receive the card
+;;deck: a player with its deck changed
+(define (updateDeckForPlayer theChosenOne player deck)
+  (changeElementByIndex 0 1 (addElementToLast (cadr player) (getElementByIndex 0 theChosenOne deck)) player))
+
+(updateDeckForPlayer (random 8) (list 'valvaro' (list 1 3 5 7 9 11 13 15 17 19 21 23) 0) (list 30 40 50 60 70 80 90 100))
+
+;;Updates the game's deck
+;;theChosenOne: randomly generated index
+;;deck: game's deck
+;;return: a deck with it's deck changed
+(define (updateMainDeck theChosenOne deck)
+  (eliminateFromListByIndex deck theChosenOne 0))
+
+(updateMainDeck (random 9) (list 1 2 3 4 5 6 7 8 9))
+
+;;Auxilaire function for hitPlayersAux that changes the main deck
+;;gameState: state of the game being processed
+;;theChosenOne: randomly generated
+;;return: gameStateWith its deck changed
+(define (hitPlayersAux1 gameState theChosenOne)
+  (changeElementByIndex 0 -1 (updateMainDeck theChosenOne (getElementByIndex 0 -1 gameState)) gameState))
+
+;;Auxilaire function for hitPlayers that changes a players cards
+;;gameState: state of the game
+;;theChosenOne: randomly generated index
+;;index: index of the player to be selected
+;;return: gameState changed
+(define (hitPlayersAux gameState theChosenOne index)
+  (hitPlayers (hitPlayersAux1 (changeElementByIndex 0 index (updateDeckForPlayer theChosenOne (getElementByIndex 0 index gameState) (getElementByIndex 0 -1 gameState)) gameState) theChosenOne) (+ index 1)))
+
+;;(hitPlayersAux (list (list 'crupier' (list 1 2 3 4) 1) (list 'p1' (list 5 6 7 8) 1) (list 'p2' (list 9 10 11 12) 1) (list 13 14 15 16 17 18 19 20)) (random  8) (random 2))
+
+;;Case in which 1 or more players has not stood
+;;gameState: state of the game
+;;index: current index of player
+;;return: changed state
+(define (hitPlayers gameState index)
+  (cond((= (- (listLength gameState) index) 1) gameState)
+       ((isPlayerDone (getElementByIndex 0 index gameState)) (hitPlayers gameState (+ index 1)))
+       (else(hitPlayersAux gameState (random (listLength (getElementByIndex 0 -1 gameState))) index))))
+
+(hitPlayers (list (list 'crupier' (list 1 2 3 4) 0) (list 'p1' (list 5 6 7 8) 0) (list 'p2' (list 9 10 11 12) 0) (list 13 14 15 16 17 18 19 20)) 0)
+
+
+  
+  
+  
+
+
+  
+
+;;(define (processTurn gameState)
+  ;;(cond((isEverybodyDone gameState) (finalTurn gameState))))
